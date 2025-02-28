@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+    <title>Crypto Price Result</title>
+</head>
+
+<body>
+    {% if error %}
+    <h2>{{ error }}</h2>
+    {% else %}
+    <h2>{{ crypto }} Price in {{ currency }}: {{ price }}</h2>
+    {% endif %}
+    <br>
+    <a href="/">Go Back</a>
+</body>
+
+</html>

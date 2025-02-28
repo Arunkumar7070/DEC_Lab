@@ -1,49 +1,67 @@
 from flask import *
 import sqlite3
+import requests
 
 app = Flask(__name__)
 
-
-
-
 @app.route("/")
 def home():
-    return render_template("signup.html")
+    return render_template("auth/signup.html")
 
 @app.route("/signup_message", methods=["POST"])
 def signup():
     username = request.form["username"]
     email = request.form["email"]
     password = request.form["password"]
-    try:
-        conn = sqlite3.connect("Database/users.db")
-        cursor = conn.cursor()
+    conn = sqlite3.connect("Database/users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ? OR email = ?", (username, email))
+    existing_user = cursor.fetchone()
+    if existing_user:
+        conn.close()
+        return render_template("result.html", value="Error: Username or Email already exists!")
+    else:
         cursor.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", (username, email, password))
         conn.commit()
         conn.close()
         return render_template("result.html", value="Signup Successful!")
-    except sqlite3.IntegrityError:
-        return render_template("result.html", value="Error: Username or Email already exists!")
+
 
 @app.route("/login")
 def login():
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
 @app.route("/login_message", methods=["POST"])
 def login_message():
     email = request.form["email"]
     password = request.form["password"]
-
     conn = sqlite3.connect("Database/users.db")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
     user = cursor.fetchone()
     conn.close()
-
     if user:
-        return render_template("api_call.html")
+        return render_template("api.html")
     else:
         return render_template("result.html", value="Invalid Email or Password!")
+
+@app.route("/crypto_currency_api")
+def api():
+    return render_template("currency_api/api_call.html")
+
+@app.route("/get_price", methods=["POST"])
+def get_price():
+    crypto = request.form["crypto"].lower()
+    currency = request.form["currency"].lower()
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto}&vs_currencies={currency}"
+    response = requests.get(url)
+    data = response.json()
+    print("Response JSON:", data)  
+    if response.status_code == 200 and crypto in data and currency in data[crypto]:
+        price = data[crypto][currency]
+        return render_template("currency_api/api_call_result.html", crypto=crypto.capitalize(), currency=currency.upper(), price=price)
+    else:
+        return render_template("currency_api/api_call_result.html", error="Invalid cryptocurrency or currency!")
 
 if __name__ == "__main__":
     app.run(debug=True)
