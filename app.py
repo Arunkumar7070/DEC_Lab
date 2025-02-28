@@ -41,7 +41,7 @@ def login_message():
     user = cursor.fetchone()
     conn.close()
     if user:
-        return render_template("api.html")
+        return render_template("select_api.html")
     else:
         return render_template("result.html", value="Invalid Email or Password!")
 
