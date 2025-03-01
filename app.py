@@ -58,7 +58,7 @@ def get_price():
     response = requests.get(url)
     data = response.json()
     print("Response JSON:", data)  
-    if response.status_code == 200 and crypto in data and currency in data[crypto]:
+    if response.status_code == 200 :
         price = data[crypto][currency]
         return render_template("currency_api/api_call_result.html", crypto=crypto.capitalize(), currency=currency.upper(), price=price)
     else:
@@ -79,7 +79,7 @@ def get_weather():
         response = requests.get(url)
         data = response.json()
 
-        if response.status_code == 200 and "current" in data and "temp_c" in data["current"]:
+        if response.status_code == 200:
             temperature = data["current"]["temp_c"]
             latitude = data["location"]["lat"]
             longitude = data["location"]["lon"]
