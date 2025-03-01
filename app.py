@@ -4,6 +4,7 @@ import requests
 
 app = Flask(__name__)
 
+weather_api_key="400eb01df4e34a908e993414250103"
 @app.route("/")
 def home():
     return render_template("auth/signup.html")
@@ -63,5 +64,49 @@ def get_price():
     else:
         return render_template("currency_api/api_call_result.html", error="Invalid cryptocurrency or currency!")
 
+
+
+@app.route("/weather")
+def weather():
+    return render_template("weather/weather_api_call.html")
+
+@app.route("/get_weather", methods=["GET", "POST"])
+def get_weather():
+    if request.method == "POST":
+        city = request.form["city"]
+        url = f"http://api.weatherapi.com/v1/current.json?key={weather_api_key}&q={city}"
+        
+        response = requests.get(url)
+        data = response.json()
+
+        if response.status_code == 200 and "current" in data and "temp_c" in data["current"]:
+            temperature = data["current"]["temp_c"]
+            latitude = data["location"]["lat"]
+            longitude = data["location"]["lon"]
+            country = data["location"]["country"]
+            condition = data["current"]["condition"]["text"]
+            icon = data["current"]["condition"]["icon"]
+            localtime = data["location"]["localtime"]  # Get local time from JSON
+
+            return render_template("weather/weather_api_call.html", 
+                                   city=city.capitalize(), 
+                                   temperature=temperature, 
+                                   latitude=latitude, 
+                                   longitude=longitude, 
+                                   country=country, 
+                                   condition=condition,
+                                   icon=icon,
+                                   localtime=localtime)  # Pass localtime to template
+        else:
+            return render_template("weather/weather_api_call.html", error="Invalid city name or API error!")
+
+    return render_template("weather/weather_api_call.html")
+
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+

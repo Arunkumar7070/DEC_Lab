@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html >
+<head>
+    <title>Weather API</title>
+</head>
+<body>
+    <h2>Enter City Name</h2>
+    <form action="/get_weather" method="post">
+        <label for="city">City Name:</label>
+        <input type="text" name="city" required>
+        <br><br>
+        <button type="submit">Get Weather</button>
+    </form>
+    {% if temperature %}
+    <h3>Weather in {{ city }}:</h3>
+    <p><strong>Temperature:</strong> {{ temperature }}°C</p>
+    <p><strong>Country:</strong> {{ country }}</p>
+    <p><strong>Latitude:</strong> {{ latitude }}</p>
+    <p><strong>Longitude:</strong> {{ longitude }}</p>
+    <p><strong>Condition:</strong> {{ condition }}</p>
+    <p><strong>Local Time:</strong> {{ localtime }}</p> 
+    <img src="https:{{ icon }}" >
+    {% elif error %}
+    <h3 style="color: red;">{{ error }}</h3>
+    {% endif %}
+</body>
+</html>
